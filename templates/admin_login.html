@@ -1,3 +1,21 @@
+</script>
+<script>
+function togglePassword() {
+    var passwordField = document.getElementById("password");
+    var icon = document.getElementById("toggleIcon");
+
+    if (passwordField.type === "password") {
+        passwordField.type = "text";
+        icon.classList.remove("bi-eye");
+        icon.classList.add("bi-eye-slash");
+    } else {
+        passwordField.type = "password";
+        icon.classList.remove("bi-eye-slash");
+        icon.classList.add("bi-eye");
+    }
+}
+</script>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -59,7 +77,15 @@ body {
 <label class="form-label">
 <i class="bi bi-lock"></i> Password
 </label>
-<input type="password" name="password" class="form-control" placeholder="Enter password" required>
+
+<div class="input-group">
+<input type="password" id="password" name="password" class="form-control" placeholder="Enter password" required>
+
+<button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
+<i class="bi bi-eye" id="toggleIcon"></i>
+</button>
+</div>
+
 </div>
 
 <button type="submit" class="btn btn-primary w-100">
@@ -73,6 +99,8 @@ body {
 </div>
 
 </div>
+
+</script>
 
 </body>
 </html>
