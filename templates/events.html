@@ -10,30 +10,31 @@
 
 <style>
 body {
-    background-color: #f8f9fa;
+    background: #f8f9fa;
     font-family: 'Poppins', sans-serif;
 }
 
+/* Navbar */
 .navbar {
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
 
+/* Hero */
 .hero {
-    height: 320px;
-    background: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)),
-    url('https://images.unsplash.com/photo-1523580846011-d3a5bc25702b');
-    background-size: cover;
-    background-position: center;
+    height: 380px;
+    background: linear-gradient(135deg, #0d6efd, #6610f2);
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
+    flex-direction: column;
 }
 
 .hero h1 {
+    font-size: 48px;
     font-weight: 700;
-    font-size: 42px;
 }
 
 .hero p {
@@ -41,41 +42,56 @@ body {
     opacity: 0.9;
 }
 
-.section-title {
-    font-weight: 600;
-    margin-bottom: 30px;
+/* Stats Section */
+.stats {
+    margin-top: -50px;
 }
 
+.stat-card {
+    border-radius: 15px;
+    background: white;
+    padding: 25px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+.stat-card h3 {
+    font-weight: 700;
+}
+
+/* Search Bar */
+.search-box {
+    max-width: 500px;
+    margin: 40px auto;
+}
+
+/* Event Cards */
 .event-card {
-    border-radius: 20px;
+    border-radius: 18px;
     overflow: hidden;
-    transition: all 0.3s ease;
     border: none;
+    transition: 0.3s ease;
 }
 
 .event-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
 }
 
 .event-card img {
-    height: 180px;
+    height: 200px;
     object-fit: cover;
 }
 
-.event-body {
-    padding: 20px;
-}
-
-.badge-custom {
-    background: #0d6efd;
+.badge-category {
+    background: #6610f2;
 }
 
 .footer {
     background: #212529;
     color: white;
-    padding: 30px 0;
-    margin-top: 60px;
+    padding: 40px 0;
+    margin-top: 80px;
 }
 
 .footer small {
@@ -100,35 +116,59 @@ body {
 </div>
 </nav>
 
-<!-- Hero Section -->
+<!-- Hero -->
 <div class="hero">
-<div>
-<h1>Discover & Join Amazing College Events</h1>
-<p>Enhance your skills, build connections, and earn certificates</p>
-<a href="#events" class="btn btn-primary btn-lg mt-3">Browse Events</a>
+<h1>Experience Campus Events Like Never Before</h1>
+<p>Discover workshops, seminars, cultural fests & tech conferences</p>
+<a href="#events" class="btn btn-light btn-lg mt-3">Explore Now</a>
+</div>
+
+<!-- Stats -->
+<div class="container stats">
+<div class="row g-4 text-center">
+<div class="col-md-4">
+<div class="stat-card">
+<h3>{{ events|length }}</h3>
+<p>Total Events</p>
+</div>
+</div>
+<div class="col-md-4">
+<div class="stat-card">
+<h3>500+</h3>
+<p>Students Participated</p>
+</div>
+</div>
+<div class="col-md-4">
+<div class="stat-card">
+<h3>20+</h3>
+<p>Expert Speakers</p>
+</div>
+</div>
 </div>
 </div>
 
-<!-- Events Section -->
+<!-- Search -->
+<div class="search-box text-center">
+<input type="text" class="form-control form-control-lg" placeholder="Search events (frontend only demo)">
+</div>
+
+<!-- Events -->
 <div class="container mt-5" id="events">
-<h2 class="text-center section-title">Upcoming Events</h2>
+<h2 class="text-center mb-4 fw-bold">Upcoming Events</h2>
 
 <div class="row g-4">
 
 {% for event in events %}
-
 <div class="col-md-4">
 <div class="card event-card shadow-sm">
 
-<img src="https://source.unsplash.com/400x300/?conference,seminar" class="card-img-top">
+<img src="https://source.unsplash.com/600x400/?university,event" class="card-img-top">
 
-<div class="event-body">
+<div class="card-body">
 
-<span class="badge badge-custom mb-2">Featured</span>
+<span class="badge badge-category mb-2">Campus Event</span>
 
-<h5 class="fw-bold">
-{{event[1]}}
-</h5>
+<h5 class="fw-bold">{{event[1]}}</h5>
 
 <p class="text-muted mb-1">
 <i class="bi bi-calendar"></i> {{event[2]}}
@@ -138,30 +178,20 @@ body {
 <i class="bi bi-geo-alt"></i> {{event[3]}}
 </p>
 
-<p class="small text-secondary">
-Certificate • Skill Development • Networking
-</p>
-
 <div class="d-flex justify-content-between mt-3">
-<a href="/event/{{event[0]}}" class="btn btn-outline-primary btn-sm">
-Details
-</a>
-
-<a href="/register" class="btn btn-success btn-sm">
-Register
-</a>
+<a href="/event/{{event[0]}}" class="btn btn-outline-primary btn-sm">Details</a>
+<a href="/register" class="btn btn-success btn-sm">Register</a>
 </div>
 
 </div>
 </div>
 </div>
-
 {% endfor %}
 
 {% if not events %}
 <div class="text-center mt-5">
-<i class="bi bi-calendar-x" style="font-size: 50px; color: gray;"></i>
-<p class="mt-3 text-muted">No events available right now. Please check back later.</p>
+<i class="bi bi-calendar-x" style="font-size: 60px; color: gray;"></i>
+<p class="mt-3 text-muted">No events available currently.</p>
 </div>
 {% endif %}
 
@@ -171,8 +201,8 @@ Register
 <!-- Footer -->
 <div class="footer text-center">
 <div class="container">
-<p class="mb-1">© 2026 College Event Management System</p>
-<small>Developed by Somesh Lendale</small>
+<h5>College Event Management System</h5>
+<small>© 2026 Developed by Somesh Lendale</small>
 </div>
 </div>
 
