@@ -39,10 +39,14 @@ def init_db():
 
 init_db()
 
-# Home
 @app.route("/")
 def home():
-    return redirect("/events")
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM events LIMIT 3")
+    events = cursor.fetchall()
+    conn.close()
+    return render_template("home.html", events=events)
 
 # View All Events
 @app.route("/events")
@@ -155,4 +159,4 @@ def logout():
     return redirect("/admin")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
