@@ -62,6 +62,8 @@ def event_details(event_id):
     cursor.execute("SELECT * FROM events WHERE id=?", (event_id,))
     event = cursor.fetchone()
     conn.close()
+    if event is None:
+        return redirect("/events")
     return render_template("event_details.html", event=event)
 
 # Register
@@ -104,7 +106,7 @@ def admin():
 # Admin Dashboard
 @app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
-    if "admin" not in session:
+    if not session.get("admin"):
         return redirect("/admin")
 
     conn = sqlite3.connect("database.db")
@@ -115,10 +117,13 @@ def dashboard():
         date = request.form["date"]
         venue = request.form["venue"]
         description = request.form["description"]
-        image = request.files["image"]
+        image = request.files.get("image")
+        image_filename = ""
 
-        image_filename = image.filename
-        image.save("static/uploads/" + image_filename)
+        if image and image.filename != "":
+            image_filename = image.filename
+            image_path = os.path.join("static/uploads", image_filename)
+            image.save(image_path)
 
         cursor.execute("""
         INSERT INTO events (name, date, venue, description, image)
