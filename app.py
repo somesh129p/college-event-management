@@ -39,6 +39,7 @@ def init_db():
 
 init_db()
 
+# Home
 @app.route("/")
 def home():
     conn = sqlite3.connect("database.db")
@@ -48,14 +49,25 @@ def home():
     conn.close()
     return render_template("home.html", events=events)
 
-# View All Events
+# View All Events (with Search)
 @app.route("/events")
 def events():
+    search_query = request.args.get("search")
+
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM events")
+
+    if search_query:
+        cursor.execute("""
+            SELECT * FROM events
+            WHERE name LIKE ? OR venue LIKE ?
+        """, (f"%{search_query}%", f"%{search_query}%"))
+    else:
+        cursor.execute("SELECT * FROM events")
+
     data = cursor.fetchall()
     conn.close()
+
     return render_template("events.html", events=data)
 
 # Event Details
@@ -66,8 +78,10 @@ def event_details(event_id):
     cursor.execute("SELECT * FROM events WHERE id=?", (event_id,))
     event = cursor.fetchone()
     conn.close()
+
     if event is None:
         return redirect("/events")
+
     return render_template("event_details.html", event=event)
 
 # Register
@@ -80,8 +94,10 @@ def register():
 
         conn = sqlite3.connect("database.db")
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO registrations (name, email, event_id) VALUES (?, ?, ?)",
-                       (name, email, event_id))
+        cursor.execute(
+            "INSERT INTO registrations (name, email, event_id) VALUES (?, ?, ?)",
+            (name, email, event_id)
+        )
         conn.commit()
         conn.close()
         return redirect("/events")
@@ -130,8 +146,8 @@ def dashboard():
             image.save(image_path)
 
         cursor.execute("""
-        INSERT INTO events (name, date, venue, description, image)
-        VALUES (?, ?, ?, ?, ?)
+            INSERT INTO events (name, date, venue, description, image)
+            VALUES (?, ?, ?, ?, ?)
         """, (name, date, venue, description, image_filename))
 
         conn.commit()
@@ -147,10 +163,12 @@ def dashboard():
 
     conn.close()
 
-    return render_template("admin.html",
-                           total_events=total_events,
-                           total_registrations=total_registrations,
-                           events=events)
+    return render_template(
+        "admin.html",
+        total_events=total_events,
+        total_registrations=total_registrations,
+        events=events
+    )
 
 # Logout
 @app.route("/logout")
