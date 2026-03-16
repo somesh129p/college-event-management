@@ -159,11 +159,11 @@ def dashboard():
 
         conn.commit()
 
-    cursor.execute("SELECT COUNT(*) FROM events")
-    total_events = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) as total FROM events")
+    total_events = cursor.fetchone()["total"]
 
-    cursor.execute("SELECT COUNT(*) FROM registrations")
-    total_registrations = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) as total FROM registrations")
+    total_registrations = cursor.fetchone()["total"]
 
     cursor.execute("SELECT * FROM events")
     events = cursor.fetchall()
