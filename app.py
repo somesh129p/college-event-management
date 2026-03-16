@@ -164,7 +164,7 @@ def dashboard():
     conn.close()
 
     return render_template(
-        "admin.html",
+        "admin_dashboard.html",
         total_events=total_events,
         total_registrations=total_registrations,
         events=events
