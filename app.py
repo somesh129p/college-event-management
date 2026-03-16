@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, session
+from werkzeug.utils import secure_filename
 import sqlite3
 import os
 
@@ -12,7 +13,8 @@ def get_db_connection():
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
-upload_folder = os.path.join("/tmp", "uploads")
+# Store uploaded images inside the static folder so they can be displayed on the website
+upload_folder = os.path.join(app.root_path, "static", "uploads")
 os.makedirs(upload_folder, exist_ok=True)
 
 def init_db():
@@ -140,7 +142,7 @@ def dashboard():
         image_filename = ""
 
         if image and image.filename != "":
-            image_filename = image.filename
+            image_filename = secure_filename(image.filename)
             image_path = os.path.join(upload_folder, image_filename)
             image.save(image_path)
 
