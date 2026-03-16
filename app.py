@@ -2,6 +2,13 @@ from flask import Flask, render_template, request, redirect, session
 import sqlite3
 import os
 
+# Database connection helper
+
+def get_db_connection():
+    conn = sqlite3.connect(os.path.join(os.getcwd(), "database.db"))
+    conn.row_factory = sqlite3.Row
+    return conn
+
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
@@ -11,8 +18,7 @@ if not os.path.exists("static/uploads"):
 
 # Database Setup
 def init_db():
-    conn = sqlite3.connect("database.db")
-    conn.row_factory = sqlite3.Row
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -43,7 +49,7 @@ init_db()
 # Home
 @app.route("/")
 def home():
-    conn = sqlite3.connect(os.path.join(os.getcwd(), "database.db"))
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM events LIMIT 3")
     events = cursor.fetchall()
@@ -55,7 +61,7 @@ def home():
 def events():
     search_query = request.args.get("search")
 
-    conn = sqlite3.connect(os.path.join(os.getcwd(), "database.db"))
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     if search_query:
@@ -74,7 +80,7 @@ def events():
 # Event Details
 @app.route("/event/<int:event_id>")
 def event_details(event_id):
-    conn = sqlite3.connect(os.path.join(os.getcwd(), "database.db"))
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM events WHERE id=?", (event_id,))
     event = cursor.fetchone()
@@ -93,7 +99,7 @@ def register():
         email = request.form["email"]
         event_id = request.form["event_id"]
 
-        conn = sqlite3.connect(os.path.join(os.getcwd(), "database.db"))
+        conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
             "INSERT INTO registrations (name, email, event_id) VALUES (?, ?, ?)",
@@ -103,7 +109,7 @@ def register():
         conn.close()
         return redirect("/events")
 
-    conn = sqlite3.connect(os.path.join(os.getcwd(), "database.db"))
+    conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM events")
     events = cursor.fetchall()
@@ -130,7 +136,7 @@ def dashboard():
     if not session.get("admin"):
         return redirect("/admin")
 
-    conn = sqlite3.connect(os.path.join(os.getcwd(), "database.db"))
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     if request.method == "POST":
