@@ -3,7 +3,8 @@ import sqlite3
 import os
 
 def get_db_connection():
-    db_path = os.path.join(app.root_path, "database.db")
+    # Use /tmp for writable storage on Render
+    db_path = os.path.join("/tmp", "database.db")
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
@@ -11,9 +12,9 @@ def get_db_connection():
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
-upload_folder = os.path.join(app.root_path, "static", "uploads")
-if not os.path.exists(upload_folder):
-    os.makedirs(upload_folder)
+# Use /tmp for uploads on Render (persistent during runtime)
+upload_folder = os.path.join("/tmp", "uploads")
+os.makedirs(upload_folder, exist_ok=True)
 
 def init_db():
     conn = get_db_connection()
@@ -141,7 +142,7 @@ def dashboard():
 
         if image and image.filename != "":
             image_filename = image.filename
-            image_path = os.path.join(app.root_path, "static", "uploads", image_filename)
+            image_path = os.path.join(upload_folder, image_filename)
             image.save(image_path)
 
         cursor.execute("""
