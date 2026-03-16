@@ -11,7 +11,8 @@ if not os.path.exists("static/uploads"):
 
 # Database Setup
 def init_db():
-    conn = sqlite3.connect(os.path.join(os.getcwd(), "database.db"))
+    conn = sqlite3.connect("database.db")
+    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
     cursor.execute("""
