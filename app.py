@@ -2,21 +2,19 @@ from flask import Flask, render_template, request, redirect, session
 import sqlite3
 import os
 
-# Database connection helper
-
 def get_db_connection():
-    conn = sqlite3.connect(os.path.join(os.getcwd(), "database.db"))
+    db_path = os.path.join(app.root_path, "database.db")
+    conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
-# Create upload folder if not exists
-if not os.path.exists("static/uploads"):
-    os.makedirs("static/uploads")
+upload_folder = os.path.join(app.root_path, "static", "uploads")
+if not os.path.exists(upload_folder):
+    os.makedirs(upload_folder)
 
-# Database Setup
 def init_db():
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -46,7 +44,6 @@ def init_db():
 
 init_db()
 
-# Home
 @app.route("/")
 def home():
     conn = get_db_connection()
@@ -56,7 +53,6 @@ def home():
     conn.close()
     return render_template("home.html", events=events)
 
-# View All Events (with Search)
 @app.route("/events")
 def events():
     search_query = request.args.get("search")
@@ -77,7 +73,6 @@ def events():
 
     return render_template("events.html", events=data)
 
-# Event Details
 @app.route("/event/<int:event_id>")
 def event_details(event_id):
     conn = get_db_connection()
@@ -91,7 +86,6 @@ def event_details(event_id):
 
     return render_template("event_details.html", event=event)
 
-# Register
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -117,7 +111,6 @@ def register():
 
     return render_template("register.html", events=events)
 
-# Admin Login
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
     if request.method == "POST":
@@ -130,7 +123,6 @@ def admin():
 
     return render_template("admin_login.html")
 
-# Admin Dashboard
 @app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
     if not session.get("admin"):
@@ -149,7 +141,7 @@ def dashboard():
 
         if image and image.filename != "":
             image_filename = image.filename
-            image_path = os.path.join("static/uploads", image_filename)
+            image_path = os.path.join(app.root_path, "static", "uploads", image_filename)
             image.save(image_path)
 
         cursor.execute("""
@@ -177,15 +169,12 @@ def dashboard():
         events=events
     )
 
-# Logout
 @app.route("/logout")
 def logout():
     session.pop("admin", None)
     return redirect("/admin")
 
 if __name__ == "__main__":
-    # Render provides the PORT environment variable
     port = int(os.environ.get("PORT", 10000))
 
-    # Run the Flask app so it is accessible externally
     app.run(host="0.0.0.0", port=port, debug=False)
