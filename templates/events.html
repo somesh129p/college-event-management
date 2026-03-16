@@ -72,15 +72,31 @@ body {
 <body>
 
 <!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
 <div class="container">
 <a class="navbar-brand fw-bold" href="/">
-<i class="bi bi-calendar-event"></i> College Event Management
+<i class="bi bi-calendar-event"></i> College Event Manager
 </a>
 
-<div>
-<a href="/register" class="btn btn-success me-2">Register</a>
-<a href="/admin" class="btn btn-outline-light">Admin</a>
+<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+<span class="navbar-toggler-icon"></span>
+</button>
+
+<div class="collapse navbar-collapse justify-content-end" id="navMenu">
+<ul class="navbar-nav align-items-center">
+<li class="nav-item me-3">
+<a class="nav-link text-white" href="/">Home</a>
+</li>
+<li class="nav-item me-3">
+<a class="nav-link text-white" href="/events">Events</a>
+</li>
+<li class="nav-item me-3">
+<a class="nav-link text-white" href="/register">Register</a>
+</li>
+<li class="nav-item">
+<a href="/admin" class="btn btn-outline-light btn-sm">Admin</a>
+</li>
+</ul>
 </div>
 </div>
 </nav>
@@ -113,7 +129,7 @@ body {
 <div class="col-md-4">
 <div class="card event-card shadow-sm">
 
-<img src="https://source.unsplash.com/600x400/?college,event" class="card-img-top" onerror="this.src='https://via.placeholder.com/600x400'">
+<img src="https://source.unsplash.com/600x400/?university,event,seminar" class="card-img-top" onerror="this.src='https://via.placeholder.com/600x400?text=Event+Poster'">
 
 <div class="card-body">
 
@@ -153,7 +169,8 @@ body {
 <div class="footer text-center">
 <div class="container">
 <h5>College Event Management System</h5>
-<p>© 2026 Developed by Somesh Lendale</p>
+<p class="mb-1">Organizing and managing campus events efficiently.</p>
+<p class="mb-0">© 2026 Developed by Somesh Lendale</p>
 </div>
 </div>
 

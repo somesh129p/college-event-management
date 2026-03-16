@@ -3,7 +3,7 @@ import sqlite3
 import os
 
 def get_db_connection():
-    # Use /tmp for writable storage on Render
+
     db_path = os.path.join("/tmp", "database.db")
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
@@ -12,7 +12,6 @@ def get_db_connection():
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
-# Use /tmp for uploads on Render (persistent during runtime)
 upload_folder = os.path.join("/tmp", "uploads")
 os.makedirs(upload_folder, exist_ok=True)
 
