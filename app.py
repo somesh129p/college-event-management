@@ -13,7 +13,6 @@ def get_db_connection():
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
-# Store uploaded images inside the static folder so they can be displayed on the website
 upload_folder = os.path.join(app.root_path, "static", "uploads")
 os.makedirs(upload_folder, exist_ok=True)
 
