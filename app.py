@@ -54,6 +54,12 @@ def home():
     conn.close()
     return render_template("home.html", events=events)
 
+
+# Simple test route to check if app is working
+@app.route("/test")
+def test():
+    return "App is working!"
+
 @app.route("/events")
 def events():
     search_query = request.args.get("search")
