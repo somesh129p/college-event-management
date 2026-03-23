@@ -3,6 +3,10 @@ from werkzeug.utils import secure_filename
 import sqlite3
 import os
 
+import logging
+logging.basicConfig(level=logging.INFO)
+print("APP STARTED SUCCESSFULLY")
+
 def get_db_connection():
 
     db_path = os.path.join(os.getcwd(), "database.db")
@@ -180,6 +184,12 @@ def dashboard():
 def logout():
     session.pop("admin", None)
     return redirect("/admin")
+
+
+# Global error handler
+@app.errorhandler(Exception)
+def handle_error(e):
+    return f"Error: {str(e)}", 500
 
 
 if __name__ == "__main__":
