@@ -5,7 +5,7 @@ import os
 
 def get_db_connection():
 
-    db_path = os.path.join("/tmp", "database.db")
+    db_path = os.path.join(os.getcwd(), "database.db")
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
@@ -175,7 +175,6 @@ def logout():
     session.pop("admin", None)
     return redirect("/admin")
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
 
-    app.run(host="0.0.0.0", port=port, debug=False)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8080)
