@@ -1,59 +1,131 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
-from werkzeug.utils import secure_filename
-import os
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Login | College Event Management</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
-app = Flask(__name__)
-app.secret_key = 'your_secret_key'
+<style>
+body {
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', sans-serif;
+}
 
-# Dummy data and functions for demonstration
-admins = {'admin': 'password'}
-events = []
+.login-card {
+    width: 100%;
+    max-width: 400px;
+    border-radius: 20px;
+    backdrop-filter: blur(15px);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+}
 
-@app.route('/admin/login', methods=['GET', 'POST'])
-def admin_login():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        if username in admins and admins[username] == password:
-            session['admin'] = username
-            return redirect(url_for('dashboard'))
-        else:
-            error = 'Invalid Credentials'
-            return render_template('admin_login.html', error=error)
-    return render_template('admin_login.html')
+.logo {
+    font-size: 50px;
+    color: #00d4ff;
+}
 
-@app.route('/admin/dashboard', methods=['GET', 'POST'])
-def dashboard():
-    if 'admin' not in session:
-        return redirect(url_for('admin_login'))
+.form-control {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    color: white;
+}
 
-    if request.method == 'POST':
-        # Add Event
-        name = request.form.get("name", "")
-        date = request.form.get("date", "")
-        venue = request.form.get("venue", "")
-        image = request.files.get("image")
+.form-control::placeholder {
+    color: #ccc;
+}
 
-        if name and date and venue and image:
-            filename = secure_filename(image.filename)
-            image.save(os.path.join('static/uploads', filename))
-            event = {
-                'name': name,
-                'date': date,
-                'venue': venue,
-                'image': filename
-            }
-            events.append(event)
-            flash('Event added successfully!', 'success')
-        else:
-            flash('Please fill all fields and upload an image.', 'danger')
+.form-control:focus {
+    box-shadow: none;
+    background: rgba(255,255,255,0.2);
+}
 
-    return render_template('dashboard.html', events=events)
+.btn-primary {
+    background: linear-gradient(45deg, #00d4ff, #007bff);
+    border: none;
+}
 
-@app.route('/admin/logout')
-def admin_logout():
-    session.pop('admin', None)
-    return redirect(url_for('admin_login'))
+.footer {
+    text-align: center;
+    margin-top: 15px;
+    color: #ccc;
+    font-size: 14px;
+}
+</style>
 
-if __name__ == '__main__':
-    app.run(debug=True)
+</head>
+<body>
+
+<div class="card login-card shadow-lg p-4">
+
+<div class="text-center mb-3">
+<i class="bi bi-shield-lock-fill logo"></i>
+<h3 class="mt-2">Admin Login</h3>
+<p style="color:#ddd;">College Event Management System</p>
+</div>
+
+{% if error %}
+<div class="alert alert-danger text-center">{{ error }}</div>
+{% endif %}
+
+<form method="POST">
+
+<div class="mb-3">
+<label class="form-label">
+<i class="bi bi-person"></i> Username
+</label>
+<input type="text" name="username" class="form-control" placeholder="Enter admin username" required>
+</div>
+
+<div class="mb-3">
+<label class="form-label">
+<i class="bi bi-lock"></i> Password
+</label>
+
+<div class="input-group">
+<input type="password" id="password" name="password" class="form-control" placeholder="Enter password" required>
+
+<button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
+<i class="bi bi-eye" id="toggleIcon"></i>
+</button>
+</div>
+
+</div>
+
+<button type="submit" class="btn btn-primary w-100">
+<i class="bi bi-box-arrow-in-right"></i> Login
+</button>
+
+</form>
+
+<div class="footer">
+© 2026 College Event Management
+</div>
+
+</div>
+
+<script>
+function togglePassword() {
+    var passwordField = document.getElementById("password");
+    var icon = document.getElementById("toggleIcon");
+
+    if (passwordField.type === "password") {
+        passwordField.type = "text";
+        icon.classList.remove("bi-eye");
+        icon.classList.add("bi-eye-slash");
+    } else {
+        passwordField.type = "password";
+        icon.classList.remove("bi-eye-slash");
+        icon.classList.add("bi-eye");
+    }
+}
+</script>
+
+</body>
+</html>

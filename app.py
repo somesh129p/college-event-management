@@ -90,9 +90,9 @@ def event_details(event_id):
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        name = request.form["name"]
-        email = request.form["email"]
-        event_id = request.form["event_id"]
+        name = request.form.get("name", "")
+        email = request.form.get("email", "")
+        event_id = request.form.get("event_id", "")
 
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -115,8 +115,8 @@ def register():
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+        username = request.form.get("username", "")
+        password = request.form.get("password", "")
 
         if username == "admin" and password == "admin":
             session["admin"] = True
@@ -133,10 +133,10 @@ def dashboard():
     cursor = conn.cursor()
 
     if request.method == "POST":
-        name = request.form["name"]
-        date = request.form["date"]
-        venue = request.form["venue"]
-        description = request.form["description"]
+        name = request.form.get("name", "")
+        date = request.form.get("date", "")
+        venue = request.form.get("venue", "")
+        description = request.form.get("description", "")
         image = request.files.get("image")
         image_filename = ""
 
