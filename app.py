@@ -35,6 +35,17 @@ def init_db():
     )
     """)
 
+    # --- Migration: ensure new columns exist on older DBs ---
+    try:
+        cursor.execute("ALTER TABLE events ADD COLUMN description TEXT")
+    except Exception:
+        pass
+
+    try:
+        cursor.execute("ALTER TABLE events ADD COLUMN image TEXT")
+    except Exception:
+        pass
+
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS registrations (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
