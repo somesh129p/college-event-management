@@ -184,6 +184,26 @@ def dashboard():
         total_registrations=total_registrations
     )
 
+@app.route("/registrations")
+def view_registrations():
+    if not session.get("admin"):
+        return redirect("/admin")
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT registrations.name, registrations.email, events.name
+        FROM registrations
+        JOIN events ON registrations.event_id = events.id
+    """)
+
+    registrations = cursor.fetchall()
+
+    conn.close()
+
+    return render_template("registrations.html", registrations=registrations)
+
 
 @app.route("/logout")
 def logout():
