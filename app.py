@@ -6,18 +6,15 @@ import os
 app = Flask(__name__)
 app.secret_key = "secret"
 
-# Upload folder
 UPLOAD_FOLDER = os.path.join(app.root_path, "static", "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# Database connection
 def get_db_connection():
     db_path = os.path.join(app.root_path, "database.db")
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
 
-# Initialize DB
 def init_db():
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -33,7 +30,6 @@ def init_db():
     )
     """)
 
-    # Migration (fix old DB)
     try:
         cursor.execute("ALTER TABLE events ADD COLUMN description TEXT")
     except:
@@ -58,7 +54,6 @@ def init_db():
 
 init_db()
 
-# ---------------- HOME ----------------
 @app.route("/")
 def home():
     conn = get_db_connection()
@@ -75,7 +70,6 @@ def home():
     return render_template("home.html", events=events, total_events=total_events)
 
 
-# ---------------- EVENTS PAGE ----------------
 @app.route("/events")
 def events():
     conn = get_db_connection()
@@ -89,7 +83,6 @@ def events():
     return render_template("events.html", events=events)
 
 
-# ---------------- EVENT DETAILS ----------------
 @app.route("/event/<int:id>")
 def event_details(id):
     conn = get_db_connection()
@@ -103,7 +96,6 @@ def event_details(id):
     return render_template("event_details.html", event=event)
 
 
-# ---------------- REGISTER ----------------
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -133,7 +125,6 @@ def register():
     return render_template("register.html", events=events)
 
 
-# ---------------- ADMIN LOGIN ----------------
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
     if request.method == "POST":
@@ -147,7 +138,6 @@ def admin():
     return render_template("admin_login.html")
 
 
-# ---------------- DASHBOARD ----------------
 @app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
     if not session.get("admin"):
@@ -195,14 +185,12 @@ def dashboard():
     )
 
 
-# ---------------- LOGOUT ----------------
 @app.route("/logout")
 def logout():
     session.pop("admin", None)
     return redirect("/admin")
 
 
-# ---------------- RUN ----------------
 PORT = int(os.environ.get("PORT", 10000))
 
 if __name__ == "__main__":

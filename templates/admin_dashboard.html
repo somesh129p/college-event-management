@@ -30,30 +30,30 @@
 <div class="row mb-4">
 
 <div class="col-md-4">
-<div class="card text-bg-primary shadow">
-<div class="card-body text-center">
-<h5><i class="bi bi-calendar-event"></i> Total Events</h5>
-<h2>{{ events|length }}</h2>
-</div>
-</div>
-</div>
-
-<div class="col-md-4">
-<div class="card text-bg-success shadow">
-<div class="card-body text-center">
-<h5><i class="bi bi-person-check"></i> Admin Status</h5>
-<h2>Active</h2>
-</div>
-</div>
+  <div class="card text-bg-primary shadow">
+    <div class="card-body text-center">
+      <h5><i class="bi bi-calendar-event"></i> Total Events</h5>
+      <h2>{{ total_events }}</h2>
+    </div>
+  </div>
 </div>
 
 <div class="col-md-4">
-<div class="card text-bg-warning shadow">
-<div class="card-body text-center">
-<h5><i class="bi bi-lightning-charge"></i> System</h5>
-<h2>Online</h2>
+  <div class="card text-bg-info shadow">
+    <div class="card-body text-center">
+      <h5><i class="bi bi-people"></i> Total Registrations</h5>
+      <h2>{{ total_registrations }}</h2>
+    </div>
+  </div>
 </div>
-</div>
+
+<div class="col-md-4">
+  <div class="card text-bg-success shadow">
+    <div class="card-body text-center">
+      <h5><i class="bi bi-person-check"></i> Admin Status</h5>
+      <h2>Active</h2>
+    </div>
+  </div>
 </div>
 
 </div>
@@ -101,7 +101,7 @@
 
 <div class="card shadow">
 
-<img src="https://picsum.photos/400/200" class="card-img-top" style="height:200px;object-fit:cover;">
+<img src="{{ url_for('static', filename='uploads/' + event[5]) if event[5] else 'https://picsum.photos/400/200' }}" class="card-img-top" style="height:200px;object-fit:cover;">
 
 <div class="card-body">
 
