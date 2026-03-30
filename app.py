@@ -3,23 +3,21 @@ from werkzeug.utils import secure_filename
 import sqlite3
 import os
 
-import logging
-logging.basicConfig(level=logging.INFO)
-print("APP STARTED SUCCESSFULLY")
+app = Flask(__name__)
+app.secret_key = "secret"
 
+# Upload folder
+UPLOAD_FOLDER = os.path.join(app.root_path, "static", "uploads")
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+# Database connection
 def get_db_connection():
-
-    db_path = os.path.join(os.getcwd(), "database.db")
+    db_path = os.path.join(app.root_path, "database.db")
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
 
-app = Flask(__name__)
-app.secret_key = "supersecretkey"
-
-upload_folder = os.path.join(app.root_path, "static", "uploads")
-os.makedirs(upload_folder, exist_ok=True)
-
+# Initialize DB
 def init_db():
     conn = get_db_connection()
     cursor = conn.cursor()
@@ -35,15 +33,15 @@ def init_db():
     )
     """)
 
-    # --- Migration: ensure new columns exist on older DBs ---
+    # Migration (fix old DB)
     try:
         cursor.execute("ALTER TABLE events ADD COLUMN description TEXT")
-    except Exception:
+    except:
         pass
 
     try:
         cursor.execute("ALTER TABLE events ADD COLUMN image TEXT")
-    except Exception:
+    except:
         pass
 
     cursor.execute("""
@@ -60,69 +58,70 @@ def init_db():
 
 init_db()
 
+# ---------------- HOME ----------------
 @app.route("/")
 def home():
     conn = get_db_connection()
     cursor = conn.cursor()
+
     cursor.execute("SELECT * FROM events LIMIT 3")
     events = cursor.fetchall()
+
+    cursor.execute("SELECT COUNT(*) as total FROM events")
+    total_events = cursor.fetchone()["total"]
+
     conn.close()
-    return render_template("home.html", events=events)
+
+    return render_template("home.html", events=events, total_events=total_events)
 
 
-# Simple test route to check if app is working
-@app.route("/test")
-def test():
-    return "App is working!"
-
+# ---------------- EVENTS PAGE ----------------
 @app.route("/events")
 def events():
-    search_query = request.args.get("search")
-
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    if search_query:
-        cursor.execute("""
-            SELECT * FROM events
-            WHERE name LIKE ? OR venue LIKE ?
-        """, (f"%{search_query}%", f"%{search_query}%"))
-    else:
-        cursor.execute("SELECT * FROM events")
+    cursor.execute("SELECT * FROM events")
+    events = cursor.fetchall()
 
-    data = cursor.fetchall()
     conn.close()
 
-    return render_template("events.html", events=data)
+    return render_template("events.html", events=events)
 
-@app.route("/event/<int:event_id>")
-def event_details(event_id):
+
+# ---------------- EVENT DETAILS ----------------
+@app.route("/event/<int:id>")
+def event_details(id):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM events WHERE id=?", (event_id,))
+
+    cursor.execute("SELECT * FROM events WHERE id=?", (id,))
     event = cursor.fetchone()
-    conn.close()
 
-    if event is None:
-        return redirect("/events")
+    conn.close()
 
     return render_template("event_details.html", event=event)
 
+
+# ---------------- REGISTER ----------------
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        name = request.form.get("name", "")
-        email = request.form.get("email", "")
-        event_id = request.form.get("event_id", "")
+        name = request.form.get("name")
+        email = request.form.get("email")
+        event_id = request.form.get("event_id")
 
         conn = get_db_connection()
         cursor = conn.cursor()
+
         cursor.execute(
             "INSERT INTO registrations (name, email, event_id) VALUES (?, ?, ?)",
             (name, email, event_id)
         )
+
         conn.commit()
         conn.close()
+
         return redirect("/events")
 
     conn = get_db_connection()
@@ -133,11 +132,13 @@ def register():
 
     return render_template("register.html", events=events)
 
+
+# ---------------- ADMIN LOGIN ----------------
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
     if request.method == "POST":
-        username = request.form.get("username", "")
-        password = request.form.get("password", "")
+        username = request.form.get("username")
+        password = request.form.get("password")
 
         if username == "admin" and password == "admin":
             session["admin"] = True
@@ -145,6 +146,8 @@ def admin():
 
     return render_template("admin_login.html")
 
+
+# ---------------- DASHBOARD ----------------
 @app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
     if not session.get("admin"):
@@ -154,24 +157,27 @@ def dashboard():
     cursor = conn.cursor()
 
     if request.method == "POST":
-        name = request.form.get("name", "")
-        date = request.form.get("date", "")
-        venue = request.form.get("venue", "")
-        description = request.form.get("description", "")
+        name = request.form.get("name")
+        date = request.form.get("date")
+        venue = request.form.get("venue")
+        description = request.form.get("description")
         image = request.files.get("image")
-        image_filename = ""
+
+        filename = ""
 
         if image and image.filename != "":
-            image_filename = secure_filename(image.filename)
-            image_path = os.path.join(upload_folder, image_filename)
-            image.save(image_path)
+            filename = secure_filename(image.filename)
+            image.save(os.path.join(UPLOAD_FOLDER, filename))
 
         cursor.execute("""
             INSERT INTO events (name, date, venue, description, image)
             VALUES (?, ?, ?, ?, ?)
-        """, (name, date, venue, description, image_filename))
+        """, (name, date, venue, description, filename))
 
         conn.commit()
+
+    cursor.execute("SELECT * FROM events")
+    events = cursor.fetchall()
 
     cursor.execute("SELECT COUNT(*) as total FROM events")
     total_events = cursor.fetchone()["total"]
@@ -179,34 +185,25 @@ def dashboard():
     cursor.execute("SELECT COUNT(*) as total FROM registrations")
     total_registrations = cursor.fetchone()["total"]
 
-    cursor.execute("SELECT * FROM events")
-    events = cursor.fetchall()
-
     conn.close()
 
     return render_template(
         "admin_dashboard.html",
+        events=events,
         total_events=total_events,
-        total_registrations=total_registrations,
-        events=events
+        total_registrations=total_registrations
     )
 
+
+# ---------------- LOGOUT ----------------
 @app.route("/logout")
 def logout():
     session.pop("admin", None)
     return redirect("/admin")
 
 
-# Global error handler
-@app.errorhandler(Exception)
-def handle_error(e):
-    return f"Error: {str(e)}", 500
-
-
-import os
-
+# ---------------- RUN ----------------
 PORT = int(os.environ.get("PORT", 10000))
 
 if __name__ == "__main__":
-    init_db()
     app.run(host="0.0.0.0", port=PORT)
