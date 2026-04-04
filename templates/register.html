@@ -51,6 +51,33 @@
             📋 Registered Students
         </h2>
 
+        <form method="POST" class="mb-4">
+            <div class="row g-3">
+
+                <div class="col-md-4">
+                    <input type="text" name="name" class="form-control" placeholder="Enter Name" required>
+                </div>
+
+                <div class="col-md-4">
+                    <input type="email" name="email" class="form-control" placeholder="Enter Email" required>
+                </div>
+
+                <div class="col-md-4">
+                    <select name="event_id" class="form-control" required>
+                        <option value="">Select Event</option>
+                        {% for e in events %}
+                        <option value="{{ e[0] }}">{{ e[1] }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+            </div>
+
+            <button class="btn btn-primary mt-3 w-100">Register</button>
+        </form>
+
+        <hr>
+
         <table class="table table-bordered table-hover">
 
             <thead>
