@@ -118,11 +118,22 @@ def register():
 
     conn = get_db_connection()
     cursor = conn.cursor()
+
+    # Fetch events for dropdown
     cursor.execute("SELECT * FROM events")
     events = cursor.fetchall()
+
+    # Fetch registered students (JOIN with event name)
+    cursor.execute("""
+        SELECT registrations.name, registrations.email, events.name as event_name
+        FROM registrations
+        JOIN events ON registrations.event_id = events.id
+    """)
+    students = cursor.fetchall()
+
     conn.close()
 
-    return render_template("register.html", events=events)
+    return render_template("register.html", events=events, students=students)
 
 
 @app.route("/admin", methods=["GET", "POST"])
