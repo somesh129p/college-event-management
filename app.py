@@ -175,13 +175,17 @@ def dashboard():
     cursor.execute("SELECT COUNT(*) as total FROM registrations")
     total_registrations = cursor.fetchone()["total"]
 
+    cursor.execute("SELECT * FROM registrations")
+    students = cursor.fetchall()
+
     conn.close()
 
     return render_template(
         "admin_dashboard.html",
         events=events,
         total_events=total_events,
-        total_registrations=total_registrations
+        total_registrations=total_registrations,
+        students=students
     )
 
 @app.route("/registrations")
