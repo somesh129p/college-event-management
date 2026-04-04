@@ -62,7 +62,13 @@
             </thead>
 
             <tbody>
-                {% for r in registrations %}
+                {% if students|length == 0 %}
+                <tr>
+                    <td colspan="3" class="text-muted">No registrations yet</td>
+                </tr>
+                {% endif %}
+
+                {% for r in students %}
                 <tr>
                     <td>{{ r[0] }}</td>
                     <td>{{ r[1] }}</td>
