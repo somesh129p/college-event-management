@@ -204,6 +204,27 @@ def view_registrations():
 
     return render_template("registrations.html", registrations=registrations)
 
+@app.route("/delete_event/<int:id>")
+def delete_event(id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM events WHERE id=?", (id,))
+    conn.commit()
+    conn.close()
+
+    return redirect("/dashboard")
+
+@app.route("/delete_registration/<int:id>")
+def delete_registration(id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM registrations WHERE id=?", (id,))
+    conn.commit()
+    conn.close()
+
+    return redirect("/registrations")
 
 @app.route("/logout")
 def logout():
