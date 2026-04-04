@@ -129,7 +129,7 @@ body {
 <div class="col-md-4">
 <div class="card event-card shadow-sm">
 
-<img src="https://source.unsplash.com/600x400/?university,event,seminar" class="card-img-top" onerror="this.src='https://via.placeholder.com/600x400?text=Event+Poster'">
+<img src="{{ url_for('static', filename='uploads/' + event[5]) if event[5] else 'https://via.placeholder.com/600x400?text=Event+Poster' }}" class="card-img-top">
 
 <div class="card-body">
 
