@@ -1,9 +1,17 @@
+:root{
+    --bg-dark: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    --bg-light: linear-gradient(135deg, #eef2ff, #f4f6f9);
+    --text-dark: #ffffff;
+    --text-light: #222;
+}
+
 body{
     font-family: 'Poppins', sans-serif;
     margin:0;
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-    color:#fff;
+    background: var(--bg-dark);
+    color: var(--text-dark);
     animation: fadeIn 0.8s ease-in-out;
+    transition: all 0.4s ease;
 }
 
 @keyframes fadeIn {
@@ -124,4 +132,33 @@ input:focus, textarea:focus{
     padding:20px;
     margin-top:40px;
     color:#ccc;
+}
+
+.light-mode{
+    background: var(--bg-light) !important;
+    color: var(--text-light) !important;
+}
+
+.light-mode .card{
+    background: rgba(255,255,255,0.9);
+    color: #222;
+}
+
+.light-mode .navbar{
+    background: rgba(255,255,255,0.9);
+}
+
+.light-mode .navbar a{
+    color: #222;
+}
+
+.light-mode input,
+.light-mode textarea{
+    background: #fff;
+    color: #222;
+}
+
+.light-mode .table th{
+    background:#007bff;
+    color:#fff;
 }
