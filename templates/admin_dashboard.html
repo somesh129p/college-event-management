@@ -6,12 +6,12 @@
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </head>
 
 <body class="bg-light">
 
+<!-- Navbar -->
 <nav class="navbar navbar-dark bg-dark">
 <div class="container">
 <span class="navbar-brand">
@@ -25,9 +25,10 @@
 </div>
 </nav>
 
-
+<!-- Main Container -->
 <div class="container mt-4">
 
+<!-- Stats -->
 <div class="row mb-4">
 
 <div class="col-md-4">
@@ -59,31 +60,42 @@
 
 </div>
 
+<!-- Charts -->
 <div class="card mt-4 p-4">
   <h4>📊 Dashboard Analytics</h4>
-  <canvas id="myChart"></canvas>
+  <canvas id="myChart" style="height:300px;"></canvas>
 </div>
 
-<h3 class="mb-4">Add Event</h3>
+<div class="card mt-4 p-4">
+  <h4>📊 Distribution</h4>
+  <canvas id="pieChart" style="height:300px;"></canvas>
+</div>
+
+<!-- Add Event -->
+<h3 class="mb-4 mt-4">Add Event</h3>
 
 <form method="POST" enctype="multipart/form-data">
 
 <div class="row g-3">
 
 <div class="col-md-4">
-<input name="name" class="form-control" placeholder="Event Name" required>
+<input name="name" class="form-control mb-3" placeholder="Event Name" required>
 </div>
 
 <div class="col-md-4">
-<input type="date" name="date" class="form-control" required>
+<input type="date" name="date" class="form-control mb-3" required>
 </div>
 
 <div class="col-md-4">
-<input name="venue" class="form-control" placeholder="Venue" required>
+<input name="venue" class="form-control mb-3" placeholder="Venue" required>
+</div>
+
+<div class="col-md-12">
+<textarea name="description" class="form-control mb-3" placeholder="Event Description" rows="3"></textarea>
 </div>
 
 <div class="col-md-4">
-<input type="file" name="image" class="form-control">
+<input type="file" name="image" class="form-control mb-3">
 </div>
 
 </div>
@@ -94,12 +106,16 @@
 
 </form>
 
-
 <hr class="my-5">
 
+<!-- Events -->
 <h3>All Events</h3>
 
 <div class="row">
+
+{% if events|length == 0 %}
+<p class="text-muted">No events added yet.</p>
+{% endif %}
 
 {% for event in events %}
 
@@ -107,7 +123,8 @@
 
 <div class="card shadow">
 
-<img src="{{ url_for('static', filename='uploads/' + event[5]) if event[5] else 'https://picsum.photos/400/200' }}" class="card-img-top" style="height:200px;object-fit:cover;">
+<img src="{{ url_for('static', filename='uploads/' + event[5]) if event[5] else 'https://via.placeholder.com/400x200?text=No+Image' }}"
+class="card-img-top" style="height:200px;object-fit:cover;">
 
 <div class="card-body">
 
@@ -134,24 +151,53 @@ Delete
 
 </div>
 
-
+<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-const ctx = document.getElementById('myChart');
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-new Chart(ctx, {
-    type: 'bar',
-    data: {
-        labels: ['Events', 'Registrations'],
-        datasets: [{
-            label: 'Statistics',
-            data: [{{ total_events }}, {{ total_registrations }}],
-            borderWidth: 1
-        }]
-    },
-    options: {
-        responsive: true
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+    const events = {{ total_events | default(0) }};
+    const registrations = {{ total_registrations | default(0) }};
+
+    const ctx = document.getElementById('myChart');
+    if(ctx){
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Events', 'Registrations'],
+                datasets: [{
+                    label: 'Statistics',
+                    data: [events, registrations],
+                    backgroundColor: ['#4facfe', '#43e97b']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
     }
+
+    const pieCtx = document.getElementById('pieChart');
+    if(pieCtx){
+        new Chart(pieCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Events', 'Registrations'],
+                datasets: [{
+                    data: [events, registrations],
+                    backgroundColor: ['#4facfe','#43e97b']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+
 });
 </script>
 
