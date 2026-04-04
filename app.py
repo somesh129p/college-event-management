@@ -175,7 +175,11 @@ def dashboard():
     cursor.execute("SELECT COUNT(*) as total FROM registrations")
     total_registrations = cursor.fetchone()["total"]
 
-    cursor.execute("SELECT * FROM registrations")
+    cursor.execute("""
+        SELECT registrations.name, registrations.email, events.name
+        FROM registrations
+        JOIN events ON registrations.event_id = events.id
+    """)
     students = cursor.fetchall()
 
     conn.close()
