@@ -30,16 +30,6 @@ def init_db():
     )
     """)
 
-    try:
-        cursor.execute("ALTER TABLE events ADD COLUMN description TEXT")
-    except:
-        pass
-
-    try:
-        cursor.execute("ALTER TABLE events ADD COLUMN image TEXT")
-    except:
-        pass
-
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS registrations (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -106,10 +96,11 @@ def register():
         conn = get_db_connection()
         cursor = conn.cursor()
 
-        cursor.execute(
-            "INSERT INTO registrations (name, email, event_id) VALUES (?, ?, ?)",
-            (name, email, event_id)
-        )
+        if name and email and event_id:
+            cursor.execute(
+                "INSERT INTO registrations (name, email, event_id) VALUES (?, ?, ?)",
+                (name, email, event_id)
+            )
 
         conn.commit()
         conn.close()
@@ -125,10 +116,10 @@ def register():
 
     # Fetch registered students (JOIN with event name)
     cursor.execute("""
-        SELECT registrations.name, registrations.email, events.name as event_name
-        FROM registrations
-        JOIN events ON registrations.event_id = events.id
-    """)
+    SELECT registrations.id, registrations.name, registrations.email, events.name
+    FROM registrations
+    JOIN events ON registrations.event_id = events.id
+""")
     students = cursor.fetchall()
 
     conn.close()
@@ -164,18 +155,18 @@ def dashboard():
         description = request.form.get("description")
         image = request.files.get("image")
 
-        filename = ""
+        filename = None
 
         if image and image.filename != "":
             filename = secure_filename(image.filename)
             image.save(os.path.join(UPLOAD_FOLDER, filename))
 
-        cursor.execute("""
-            INSERT INTO events (name, date, venue, description, image)
-            VALUES (?, ?, ?, ?, ?)
-        """, (name, date, venue, description, filename))
-
-        conn.commit()
+        if name and date and venue:
+            cursor.execute("""
+                INSERT INTO events (name, date, venue, description, image)
+                VALUES (?, ?, ?, ?, ?)
+            """, (name, date, venue, description, filename))
+            conn.commit()
 
     cursor.execute("SELECT * FROM events")
     events = cursor.fetchall()
@@ -187,7 +178,7 @@ def dashboard():
     total_registrations = cursor.fetchone()["total"]
 
     cursor.execute("""
-        SELECT registrations.name, registrations.email, events.name
+        SELECT registrations.id, registrations.name, registrations.email, events.name
         FROM registrations
         JOIN events ON registrations.event_id = events.id
     """)
@@ -243,7 +234,7 @@ def delete_registration(id):
     conn.commit()
     conn.close()
 
-    return redirect("/registrations")
+    return redirect("/dashboard")
 
 @app.route("/logout")
 def logout():

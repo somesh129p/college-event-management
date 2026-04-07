@@ -38,6 +38,7 @@
             <th>Name</th>
             <th>Email</th>
             <th>Event Name</th>
+            <th>Action</th>
         </tr>
     </thead>
     <tbody>
@@ -50,9 +51,16 @@
 
     {% for s in students %}
     <tr>
-        <td>{{ s[0] }}</td>
         <td>{{ s[1] }}</td>
         <td>{{ s[2] }}</td>
+        <td>{{ s[3] }}</td>
+        <td>
+            <a href="/delete_registration/{{ s[0] }}" 
+               class="btn btn-danger btn-sm"
+               onclick="return confirm('Delete this student?')">
+               Delete
+            </a>
+        </td>
     </tr>
     {% endfor %}
 
