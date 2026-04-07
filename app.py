@@ -3,6 +3,7 @@ from werkzeug.utils import secure_filename
 import sqlite3
 import os
 
+SECURITY_ANSWER = "somesh123"   # you can change this
 app = Flask(__name__)
 app.secret_key = "secret"
 
@@ -257,12 +258,15 @@ def logout():
 @app.route("/forgot_password", methods=["GET", "POST"])
 def forgot_password():
     if request.method == "POST":
-        new_password = request.form.get("password")
+        username = request.form.get("username")
+        answer = request.form.get("answer")
+        new_password = request.form.get("new_password")
 
-        if new_password:
+        if username == "admin" and answer == SECURITY_ANSWER:
             session["admin_password"] = new_password
-
-        return redirect("/admin")
+            return redirect("/admin")
+        else:
+            return "Wrong username or answer"
 
     return render_template("forgot_password.html")
 
