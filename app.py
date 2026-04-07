@@ -110,16 +110,14 @@ def register():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # Fetch events for dropdown
     cursor.execute("SELECT * FROM events")
     events = cursor.fetchall()
 
-    # Fetch registered students (JOIN with event name)
     cursor.execute("""
     SELECT registrations.id, registrations.name, registrations.email, events.name
     FROM registrations
     JOIN events ON registrations.event_id = events.id
-""")
+    """)
     students = cursor.fetchall()
 
     conn.close()
@@ -133,7 +131,9 @@ def admin():
         username = request.form.get("username")
         password = request.form.get("password")
 
-        if username == "admin" and password == "admin":
+        saved_password = session.get("admin_password", "admin")
+
+        if username == "admin" and password == saved_password:
             session["admin"] = True
             return redirect("/dashboard")
 
@@ -177,14 +177,28 @@ def dashboard():
     cursor.execute("SELECT COUNT(*) as total FROM registrations")
     total_registrations = cursor.fetchone()["total"]
 
-    cursor.execute("""
-        SELECT 
-            registrations.id as reg_id,
-            registrations.name as student_name,
-            registrations.email,
-            (SELECT name FROM events WHERE id = registrations.event_id) as event_name
-        FROM registrations
-    """)
+    search = request.args.get("search")
+
+    if search:
+        cursor.execute("""
+            SELECT 
+                registrations.id as reg_id,
+                registrations.name as student_name,
+                registrations.email,
+                (SELECT name FROM events WHERE id = registrations.event_id) as event_name
+            FROM registrations
+            WHERE registrations.name LIKE ? OR registrations.email LIKE ?
+        """, ('%' + search + '%', '%' + search + '%'))
+    else:
+        cursor.execute("""
+            SELECT 
+                registrations.id as reg_id,
+                registrations.name as student_name,
+                registrations.email,
+                (SELECT name FROM events WHERE id = registrations.event_id) as event_name
+            FROM registrations
+        """)
+
     students = cursor.fetchall()
 
     conn.close()
@@ -197,25 +211,6 @@ def dashboard():
         students=students
     )
 
-@app.route("/registrations")
-def view_registrations():
-    if not session.get("admin"):
-        return redirect("/admin")
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        SELECT registrations.name, registrations.email, events.name
-        FROM registrations
-        JOIN events ON registrations.event_id = events.id
-    """)
-
-    registrations = cursor.fetchall()
-
-    conn.close()
-
-    return render_template("registrations.html", registrations=registrations)
 
 @app.route("/delete_event/<int:id>")
 def delete_event(id):
@@ -228,6 +223,7 @@ def delete_event(id):
 
     return redirect("/dashboard")
 
+
 @app.route("/delete_registration/<int:id>")
 def delete_registration(id):
     conn = get_db_connection()
@@ -238,6 +234,7 @@ def delete_registration(id):
     conn.close()
 
     return redirect("/dashboard")
+
 
 @app.route("/delete_all_registrations")
 def delete_all_registrations():
@@ -250,13 +247,27 @@ def delete_all_registrations():
 
     return redirect("/dashboard")
 
+
 @app.route("/logout")
 def logout():
     session.pop("admin", None)
     return redirect("/admin")
 
 
+@app.route("/forgot_password", methods=["GET", "POST"])
+def forgot_password():
+    if request.method == "POST":
+        new_password = request.form.get("password")
+
+        if new_password:
+            session["admin_password"] = new_password
+
+        return redirect("/admin")
+
+    return render_template("forgot_password.html")
+
+
 PORT = int(os.environ.get("PORT", 10000))
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=PORT) 
+    app.run(host="0.0.0.0", port=PORT)
