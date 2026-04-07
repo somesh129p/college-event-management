@@ -178,9 +178,12 @@ def dashboard():
     total_registrations = cursor.fetchone()["total"]
 
     cursor.execute("""
-        SELECT registrations.id, registrations.name, registrations.email, events.name
+        SELECT 
+            registrations.id as reg_id,
+            registrations.name as student_name,
+            registrations.email,
+            (SELECT name FROM events WHERE id = registrations.event_id) as event_name
         FROM registrations
-        JOIN events ON registrations.event_id = events.id
     """)
     students = cursor.fetchall()
 
@@ -231,6 +234,17 @@ def delete_registration(id):
     cursor = conn.cursor()
 
     cursor.execute("DELETE FROM registrations WHERE id=?", (id,))
+    conn.commit()
+    conn.close()
+
+    return redirect("/dashboard")
+
+@app.route("/delete_all_registrations")
+def delete_all_registrations():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM registrations")
     conn.commit()
     conn.close()
 

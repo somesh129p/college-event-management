@@ -49,15 +49,14 @@
         </tr>
     {% endif %}
 
-    {% for s in students %}
+    {% for student in students %}
     <tr>
-        <td>{{ s[1] }}</td>
-        <td>{{ s[2] }}</td>
-        <td>{{ s[3] }}</td>
+        <td>{{ student.student_name }}</td>
+        <td>{{ student.email }}</td>
+        <td>{{ student.event_name }}</td>
         <td>
-            <a href="/delete_registration/{{ s[0] }}" 
-               class="btn btn-danger btn-sm"
-               onclick="return confirm('Delete this student?')">
+            <a href="/delete_registration/{{ student.reg_id }}" 
+               class="btn btn-danger btn-sm">
                Delete
             </a>
         </td>
@@ -98,6 +97,15 @@
   </div>
 </div>
 
+
+</div>
+
+<div class="mb-3">
+    <a href="/delete_all_registrations" 
+       class="btn btn-danger"
+       onclick="return confirm('Delete ALL registrations?')">
+       Delete All Registrations
+    </a>
 </div>
 
 <!-- Add Event -->
