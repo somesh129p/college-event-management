@@ -3,7 +3,7 @@ from werkzeug.utils import secure_filename
 import sqlite3
 import os
 
-SECURITY_ANSWER = "somesh123"   # you can change this
+SECURITY_ANSWER = "somesh123"   
 app = Flask(__name__)
 app.secret_key = "secret"
 
