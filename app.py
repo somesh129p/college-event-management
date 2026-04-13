@@ -3,7 +3,7 @@ from werkzeug.utils import secure_filename
 import sqlite3
 import os
 
-SECURITY_ANSWER = "somesh123"   
+SECURITY_ANSWER = "somesh123"
 app = Flask(__name__)
 app.secret_key = "secret"
 
@@ -218,7 +218,12 @@ def delete_event(id):
     conn = get_db_connection()
     cursor = conn.cursor()
 
+    # delete registrations linked to this event
+    cursor.execute("DELETE FROM registrations WHERE event_id=?", (id,))
+
+    # delete the event itself
     cursor.execute("DELETE FROM events WHERE id=?", (id,))
+
     conn.commit()
     conn.close()
 
