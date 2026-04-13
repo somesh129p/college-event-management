@@ -110,19 +110,6 @@ def register():
     conn.close()
     return render_template("register.html", events=events)
 
-    cursor.execute("SELECT * FROM events")
-    events = cursor.fetchall()
-
-    cursor.execute("""
-        SELECT registrations.id, registrations.name, registrations.email, events.name
-        FROM registrations
-        JOIN events ON registrations.event_id = events.id
-    """)
-    students = cursor.fetchall()
-
-    conn.close()
-    return render_template("register.html", events=events, students=students)
-
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
     if request.method == "POST":
