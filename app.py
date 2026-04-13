@@ -276,6 +276,33 @@ def forgot_password():
     return render_template("forgot_password.html")
 
 
+@app.route("/edit_event/<int:id>", methods=["GET", "POST"])
+def edit_event(id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    if request.method == "POST":
+        name = request.form.get("name")
+        date = request.form.get("date")
+        venue = request.form.get("venue")
+        description = request.form.get("description")
+
+        cursor.execute("""
+            UPDATE events
+            SET name=?, date=?, venue=?, description=?
+            WHERE id=?
+        """, (name, date, venue, description, id))
+
+        conn.commit()
+        conn.close()
+        return redirect("/dashboard")
+
+    cursor.execute("SELECT * FROM events WHERE id=?", (id,))
+    event = cursor.fetchone()
+    conn.close()
+
+    return render_template("edit_event.html", event=event)
+
 PORT = int(os.environ.get("PORT", 10000))
 
 if __name__ == "__main__":
