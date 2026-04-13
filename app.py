@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, session
 from werkzeug.utils import secure_filename
 import sqlite3
 import os
+import pandas as pd
+from flask import send_file
 
 SECURITY_ANSWER = "somesh123"
 
@@ -255,6 +257,31 @@ def forgot_password():
             return "Wrong username or answer"
 
     return render_template("forgot_password.html")
+
+
+# Export registrations to Excel
+@app.route("/export_excel")
+def export_excel():
+    if not session.get("admin"):
+        return redirect("/admin")
+
+    conn = get_db_connection()
+
+    df = pd.read_sql_query("""
+        SELECT 
+            registrations.name AS Student_Name,
+            registrations.email AS Email,
+            events.name AS Event_Name
+        FROM registrations
+        LEFT JOIN events ON registrations.event_id = events.id
+    """, conn)
+
+    conn.close()
+
+    file_path = "registered_students.xlsx"
+    df.to_excel(file_path, index=False)
+
+    return send_file(file_path, as_attachment=True)
 
 PORT = int(os.environ.get("PORT", 10000))
 
