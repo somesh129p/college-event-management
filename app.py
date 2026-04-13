@@ -4,6 +4,7 @@ import sqlite3
 import os
 
 SECURITY_ANSWER = "somesh123"
+
 app = Flask(__name__)
 app.secret_key = "secret"
 
@@ -57,9 +58,7 @@ def home():
     total_events = cursor.fetchone()["total"]
 
     conn.close()
-
     return render_template("home.html", events=events, total_events=total_events)
-
 
 @app.route("/events")
 def events():
@@ -70,9 +69,7 @@ def events():
     events = cursor.fetchall()
 
     conn.close()
-
     return render_template("events.html", events=events)
-
 
 @app.route("/event/<int:id>")
 def event_details(id):
@@ -83,48 +80,40 @@ def event_details(id):
     event = cursor.fetchone()
 
     conn.close()
-
     return render_template("event_details.html", event=event)
-
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
     if request.method == "POST":
         name = request.form.get("name")
         email = request.form.get("email")
         event_id = request.form.get("event_id")
-
-        conn = get_db_connection()
-        cursor = conn.cursor()
 
         if name and email and event_id:
             cursor.execute(
                 "INSERT INTO registrations (name, email, event_id) VALUES (?, ?, ?)",
                 (name, email, event_id)
             )
+            conn.commit()
 
-        conn.commit()
         conn.close()
-
         return redirect("/events")
-
-    conn = get_db_connection()
-    cursor = conn.cursor()
 
     cursor.execute("SELECT * FROM events")
     events = cursor.fetchall()
 
     cursor.execute("""
-    SELECT registrations.id, registrations.name, registrations.email, events.name
-    FROM registrations
-    JOIN events ON registrations.event_id = events.id
+        SELECT registrations.id, registrations.name, registrations.email, events.name
+        FROM registrations
+        JOIN events ON registrations.event_id = events.id
     """)
     students = cursor.fetchall()
 
     conn.close()
-
     return render_template("register.html", events=events, students=students)
-
 
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
@@ -139,7 +128,6 @@ def admin():
             return redirect("/dashboard")
 
     return render_template("admin_login.html")
-
 
 @app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
@@ -157,7 +145,6 @@ def dashboard():
         image = request.files.get("image")
 
         filename = None
-
         if image and image.filename != "":
             filename = secure_filename(image.filename)
             image.save(os.path.join(UPLOAD_FOLDER, filename))
@@ -201,7 +188,6 @@ def dashboard():
         """)
 
     students = cursor.fetchall()
-
     conn.close()
 
     return render_template(
@@ -212,23 +198,17 @@ def dashboard():
         students=students
     )
 
-
 @app.route("/delete_event/<int:id>")
 def delete_event(id):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # delete registrations linked to this event
     cursor.execute("DELETE FROM registrations WHERE event_id=?", (id,))
-
-    # delete the event itself
     cursor.execute("DELETE FROM events WHERE id=?", (id,))
 
     conn.commit()
     conn.close()
-
     return redirect("/dashboard")
-
 
 @app.route("/delete_registration/<int:id>")
 def delete_registration(id):
@@ -238,9 +218,7 @@ def delete_registration(id):
     cursor.execute("DELETE FROM registrations WHERE id=?", (id,))
     conn.commit()
     conn.close()
-
     return redirect("/dashboard")
-
 
 @app.route("/delete_all_registrations")
 def delete_all_registrations():
@@ -250,15 +228,12 @@ def delete_all_registrations():
     cursor.execute("DELETE FROM registrations")
     conn.commit()
     conn.close()
-
     return redirect("/dashboard")
-
 
 @app.route("/logout")
 def logout():
     session.pop("admin", None)
     return redirect("/admin")
-
 
 @app.route("/forgot_password", methods=["GET", "POST"])
 def forgot_password():
@@ -274,34 +249,6 @@ def forgot_password():
             return "Wrong username or answer"
 
     return render_template("forgot_password.html")
-
-
-@app.route("/edit_event/<int:id>", methods=["GET", "POST"])
-def edit_event(id):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    if request.method == "POST":
-        name = request.form.get("name")
-        date = request.form.get("date")
-        venue = request.form.get("venue")
-        description = request.form.get("description")
-
-        cursor.execute("""
-            UPDATE events
-            SET name=?, date=?, venue=?, description=?
-            WHERE id=?
-        """, (name, date, venue, description, id))
-
-        conn.commit()
-        conn.close()
-        return redirect("/dashboard")
-
-    cursor.execute("SELECT * FROM events WHERE id=?", (id,))
-    event = cursor.fetchone()
-    conn.close()
-
-    return render_template("edit_event.html", event=event)
 
 PORT = int(os.environ.get("PORT", 10000))
 
