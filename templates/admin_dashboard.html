@@ -28,11 +28,6 @@
 <div class="container mt-4">
 
 <hr class="my-5">
-<div class="mb-3">
-    <a href="/export_event_excel" class="btn btn-primary mt-2">
-    📊 Download Event-wise Excel
-</a>
-</div>
 <h3>Registered Students</h3>
 <form method="GET" class="mb-3 d-flex">
     <input type="text" name="search" class="form-control me-2" placeholder="Search student...">
@@ -123,9 +118,6 @@
        onclick="return confirm('Delete ALL registrations?')">
        Delete All Registrations
     </a>
-</div>
-<div class="mb-3">
-    <a href="/export_excel" class="btn btn-success mt-2">📥 Download Excel</a>
 </div>
 
 <hr class="my-5">
@@ -227,7 +219,7 @@ class="card-img-top" style="height:200px;object-fit:cover;">
    Delete
 </a>
 
-<a href="/export_event_excel" class="btn btn-success btn-sm mt-2">
+<a href="/export_event_excel?event_id={{event[0]}}" class="btn btn-success btn-sm mt-2">
    Download Excel
 </a>
 
