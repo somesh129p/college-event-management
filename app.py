@@ -120,12 +120,6 @@ def register():
     conn.close()
     return render_template("register.html", events=events)
 
-    cursor.execute("SELECT * FROM events")
-    events = cursor.fetchall()
-
-    conn.close()
-    return render_template("register.html", events=events)
-
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
     if request.method == "POST":
@@ -209,6 +203,23 @@ def dashboard():
         """)
 
     students = cursor.fetchall()
+
+    cursor.execute("""
+    SELECT events.id, events.name, COUNT(registrations.id) as total_students
+    FROM events
+    LEFT JOIN registrations ON events.id = registrations.event_id
+    GROUP BY events.id, events.name
+    """)
+    event_counts = cursor.fetchall()
+
+    cursor.execute("""
+    SELECT events.name as event_name, registrations.name as student_name
+    FROM registrations
+    LEFT JOIN events ON registrations.event_id = events.id
+    ORDER BY events.name
+    """)
+    event_students = cursor.fetchall()
+
     conn.close()
 
     return render_template(
@@ -217,7 +228,9 @@ def dashboard():
         total_events=total_events,
         total_registrations=total_registrations,
         students=students,
-        today=today
+        today=today,
+        event_counts=event_counts,
+        event_students=event_students
     )
 
 @app.route("/delete_event/<int:id>")
