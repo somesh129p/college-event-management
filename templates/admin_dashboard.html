@@ -128,6 +128,32 @@
     <a href="/export_excel" class="btn btn-success mt-2">📥 Download Excel</a>
 </div>
 
+<hr class="my-5">
+
+<h3 class="mb-4">Event Wise Registered List</h3>
+
+{% for event in event_counts %}
+<div class="card shadow mb-3">
+  <div class="card-body">
+    <h5 class="card-title">{{ event.name }}</h5>
+    <p class="mb-2"><strong>Total Registered:</strong> {{ event.total_students }}</p>
+
+    <ul class="mb-0">
+      {% set found = false %}
+      {% for student in event_students %}
+        {% if student.event_name == event.name %}
+          {% set found = true %}
+          <li>{{ student.student_name }}</li>
+        {% endif %}
+      {% endfor %}
+      {% if event.total_students == 0 %}
+        <li class="text-muted">No students registered</li>
+      {% endif %}
+    </ul>
+  </div>
+</div>
+{% endfor %}
+
 <h3 class="mb-4 mt-4">Add Event</h3>
 
 <form method="POST" enctype="multipart/form-data">
