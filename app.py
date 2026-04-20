@@ -96,14 +96,19 @@ def register():
 
     if request.method == "POST":
         name = request.form.get("name")
+        roll_no = request.form.get("roll_no")
+        department = request.form.get("department")
+        class_name = request.form.get("class_name")
+        mobile = request.form.get("mobile")
         email = request.form.get("email")
         event_id = request.form.get("event_id")
 
-        if name and email and event_id:
-            cursor.execute(
-                "INSERT INTO registrations (name, email, event_id) VALUES (?, ?, ?)",
-                (name, email, event_id)
-            )
+        if name and roll_no and department and class_name and mobile and email and event_id:
+            cursor.execute("""
+                INSERT INTO registrations
+                (name, roll_no, department, class_name, mobile, email, event_id)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (name, roll_no, department, class_name, mobile, email, event_id))
             conn.commit()
 
         conn.close()
@@ -114,6 +119,12 @@ def register():
 
     conn.close()
     return render_template("register.html", events=events)
+
+cursor.execute("SELECT * FROM events")
+events = cursor.fetchall()
+
+conn.close()
+return render_template("register.html", events=events)
 
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
