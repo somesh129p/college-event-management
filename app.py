@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, session
+from datetime import date
 from werkzeug.utils import secure_filename
 import sqlite3
 import os
@@ -132,6 +133,8 @@ def dashboard():
     conn = get_db_connection()
     cursor = conn.cursor()
 
+    today = date.today().isoformat()
+
     if request.method == "POST":
         name = request.form.get("name")
         date = request.form.get("date")
@@ -144,7 +147,7 @@ def dashboard():
             filename = secure_filename(image.filename)
             image.save(os.path.join(UPLOAD_FOLDER, filename))
 
-        if name and date and venue:
+        if name and date and venue and date >= today:
             cursor.execute("""
                 INSERT INTO events (name, date, venue, description, image)
                 VALUES (?, ?, ?, ?, ?)
@@ -190,7 +193,8 @@ def dashboard():
         events=events,
         total_events=total_events,
         total_registrations=total_registrations,
-        students=students
+        students=students,
+        today=today
     )
 
 @app.route("/delete_event/<int:id>")
