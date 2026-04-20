@@ -95,22 +95,42 @@ def register():
     cursor = conn.cursor()
 
     if request.method == "POST":
-        name = request.form.get("name")
-        roll_no = request.form.get("roll_no")
-        department = request.form.get("department")
-        class_name = request.form.get("class_name")
-        mobile = request.form.get("mobile")
-        email = request.form.get("email")
-        event_id = request.form.get("event_id")
+        name = request.form.get("name", "").strip()
+        roll_no = request.form.get("roll_no", "").strip()
+        department = request.form.get("department", "").strip()
+        class_name = request.form.get("class_name", "").strip()
+        mobile = request.form.get("mobile", "").strip()
+        email = request.form.get("email", "").strip().lower()
+        event_id = request.form.get("event_id", "").strip()
 
-        if name and roll_no and department and class_name and mobile and email and event_id:
-            cursor.execute("""
-                INSERT INTO registrations
-                (name, roll_no, department, class_name, mobile, email, event_id)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, (name, roll_no, department, class_name, mobile, email, event_id))
-            conn.commit()
+        if not (name and roll_no and department and class_name and mobile and email and event_id):
+            conn.close()
+            return redirect("/register")
 
+        if not mobile.isdigit() or len(mobile) != 10:
+            conn.close()
+            return "Invalid mobile number"
+
+        if "@" not in email or "." not in email:
+            conn.close()
+            return "Invalid email address"
+
+        cursor.execute("""
+            SELECT id FROM registrations
+            WHERE email = ? AND event_id = ?
+        """, (email, event_id))
+        existing = cursor.fetchone()
+
+        if existing:
+            conn.close()
+            return "You already registered for this event!"
+
+        cursor.execute("""
+            INSERT INTO registrations
+            (name, roll_no, department, class_name, mobile, email, event_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        """, (name, roll_no, department, class_name, mobile, email, event_id))
+        conn.commit()
         conn.close()
         return redirect("/events")
 
