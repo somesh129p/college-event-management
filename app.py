@@ -309,6 +309,34 @@ def export_excel():
 
     return send_file(file_path, as_attachment=True)
 
+@app.route("/export_event_excel")
+def export_event_excel():
+    if not session.get("admin"):
+        return redirect("/admin")
+
+    conn = get_db_connection()
+
+    df = pd.read_sql_query("""
+        SELECT 
+            events.name AS Event_Name,
+            registrations.name AS Student_Name,
+            registrations.roll_no AS Roll_No,
+            registrations.department AS Department,
+            registrations.class_name AS Class,
+            registrations.mobile AS Mobile_No,
+            registrations.email AS Email
+        FROM registrations
+        LEFT JOIN events ON registrations.event_id = events.id
+        ORDER BY events.name, registrations.name
+    """, conn)
+
+    conn.close()
+
+    file_path = "event_wise_registrations.xlsx"
+    df.to_excel(file_path, index=False)
+
+    return send_file(file_path, as_attachment=True)
+
 PORT = int(os.environ.get("PORT", 10000))
 
 if __name__ == "__main__":
