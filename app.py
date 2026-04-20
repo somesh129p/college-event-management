@@ -246,7 +246,6 @@ def forgot_password():
     return render_template("forgot_password.html")
 
 
-# Export registrations to Excel
 @app.route("/export_excel")
 def export_excel():
     if not session.get("admin"):
