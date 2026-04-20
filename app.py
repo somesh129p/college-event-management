@@ -39,6 +39,10 @@ def init_db():
     CREATE TABLE IF NOT EXISTS registrations (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
+        roll_no TEXT,
+        department TEXT,
+        class_name TEXT,
+        mobile TEXT,
         email TEXT,
         event_id INTEGER
     )
@@ -137,7 +141,7 @@ def dashboard():
 
     if request.method == "POST":
         name = request.form.get("name")
-        date = request.form.get("date")
+        event_date = request.form.get("date")
         venue = request.form.get("venue")
         description = request.form.get("description")
         image = request.files.get("image")
@@ -147,11 +151,11 @@ def dashboard():
             filename = secure_filename(image.filename)
             image.save(os.path.join(UPLOAD_FOLDER, filename))
 
-        if name and date and venue and date >= today:
+        if name and event_date and venue and event_date >= today:
             cursor.execute("""
                 INSERT INTO events (name, date, venue, description, image)
                 VALUES (?, ?, ?, ?, ?)
-            """, (name, date, venue, description, filename))
+            """, (name, event_date, venue, description, filename))
             conn.commit()
 
     cursor.execute("SELECT * FROM events")
@@ -170,6 +174,10 @@ def dashboard():
             SELECT 
                 registrations.id as reg_id,
                 registrations.name as student_name,
+                registrations.roll_no,
+                registrations.department,
+                registrations.class_name,
+                registrations.mobile,
                 registrations.email,
                 (SELECT name FROM events WHERE id = registrations.event_id) as event_name
             FROM registrations
@@ -180,6 +188,10 @@ def dashboard():
             SELECT 
                 registrations.id as reg_id,
                 registrations.name as student_name,
+                registrations.roll_no,
+                registrations.department,
+                registrations.class_name,
+                registrations.mobile,
                 registrations.email,
                 (SELECT name FROM events WHERE id = registrations.event_id) as event_name
             FROM registrations
